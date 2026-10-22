@@ -1,0 +1,16 @@
+{
+    "name": "nicodevs/weather",
+    "description": "Weather for any city, as JSON.",
+    "type": "library",
+    "license": "MIT",
+    "bin": ["bin/weather"],
+    "require": {
+        "php": "^8.5",
+        "symfony/console": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nicodevs\\Weather\\": "src/"
+        }
+    }
+}

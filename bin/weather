@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+use Nicodevs\Weather\OpenMeteo;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+require file_exists(__DIR__ . '/../vendor/autoload.php')
+    ? __DIR__ . '/../vendor/autoload.php'
+    : __DIR__ . '/../../../autoload.php';
+
+$command = (new Command('weather'))
+    ->addArgument('city', InputArgument::REQUIRED, 'City to look up')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $input->getArgument('city')
+            |> (new OpenMeteo())->currentConditions(...)
+            |> (fn ($weather) => json_encode($weather, JSON_PRETTY_PRINT))
+            |> $output->writeln(...);
+
+        return 0;
+    });
+
+$app = new Application('weather', '0.1.0');
+$app->addCommand($command);
+$app->setDefaultCommand('weather', true);
+$app->setCatchExceptions(false);
+
+try {
+    exit($app->run());
+} catch (Throwable $e) {
+    echo json_encode(['error' => str_replace('"', "'", $e->getMessage())]) . PHP_EOL;
+    exit(1);
+}
