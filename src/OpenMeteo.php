@@ -32,8 +32,10 @@ class OpenMeteo
 
     private function get(string $url, array $query): array
     {
+        $context = stream_context_create(['http' => ['timeout' => 10]]);
+
         return $url . '?' . http_build_query($query)
-            |> file_get_contents(...)
-            |> (fn ($json) => json_decode($json, true));
+            |> (fn ($url) => file_get_contents($url, false, $context))
+            |> (fn ($json) => json_decode($json, true, flags: JSON_THROW_ON_ERROR));
     }
 }

@@ -7,6 +7,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  queue: max
+
 jobs:
   tag:
     runs-on: ubuntu-latest
@@ -17,7 +21,8 @@ jobs:
 
       - name: Tag the next patch version
         run: |
-          latest=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          git fetch origin --tags
+          latest=$(git tag --list 'v*' --sort=-v:refname | sed -nE '/^v[0-9]+\.[0-9]+\.[0-9]+$/p' | sed -n '1p')
           latest=${latest:-v0.0.0}
           IFS=. read -r major minor patch <<< "${latest#v}"
           next="v$major.$minor.$((patch + 1))"
